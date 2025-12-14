@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class humanScript : MonoBehaviour
 {
@@ -38,7 +39,7 @@ public class humanScript : MonoBehaviour
             yield return new WaitForSeconds(timer);
         }
 
-        yield return null;
+       // yield return null;
     }
 
     IEnumerator InfectionRoll()
@@ -48,6 +49,12 @@ public class humanScript : MonoBehaviour
          yield return new WaitForSeconds(timer);
     }
 
+    IEnumerator SurvivalRoll()
+    {
+        float timer = Random.Range(10, 15);
+        RollSurDice();
+        yield return new WaitForSeconds(timer);
+    }
 
     private Vector2 Direction() 
     {
@@ -64,8 +71,11 @@ public class humanScript : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        StartCoroutine(InfectionRoll());
-
+        if (state == "Healthy")
+        {
+            StartCoroutine(InfectionRoll());
+        }
+        
     }
 
     void RollInfDice()
@@ -73,21 +83,25 @@ public class humanScript : MonoBehaviour
         int dice = Random.Range(1,100);
         Debug.Log("Rolled dice " + dice);
         
-        if (dice > 1 && dice < 10 && state != "Sick")
+        if (dice > 1 && dice <= 10 && state != "Sick")
         {
             state = "Sick";
             ChangeColor();
+            
+
         }
-        else if (dice >= 10 && dice < 100 && state != "Healthy")
+       /* else if (dice >= 10 && dice < 100 && state != "Healthy")
         {
             state = "Healthy";
             ChangeColor();
-        }
+        } */
 
     }
 
     void RollSurDice()
     {
+
+
         int dice = Random.Range(1, 100);
         Debug.Log("Rolled survival dice " + dice);
 
@@ -103,7 +117,13 @@ public class humanScript : MonoBehaviour
             state = "Immune";
             ChangeColor();
         }
-    }
+
+        else if (dice >= 20 && dice <= 100 && state != "Healthy")
+        {
+            state = "Healthy";
+            ChangeColor();
+        }
+    } 
 
 
     void ChangeColor()
@@ -147,6 +167,10 @@ public class humanScript : MonoBehaviour
         }
 
         //ChangeColor();
+        if (state == "Sick")
+        {
+            StartCoroutine(SurvivalRoll());
+        }
 
 
 
