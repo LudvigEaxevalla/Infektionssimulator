@@ -8,11 +8,9 @@ public class humanScript : MonoBehaviour
 {
 
     public string state = "Healthy";
-    public bool healthy = false;
     public bool sick = false;
-    public bool immune = false; 
-    public bool dead = false;
-    public bool moving = false;
+    public bool moving = true;
+
   
     public int humanSpeed = 3;
     public int sickTime = 10 * 60;
@@ -43,17 +41,18 @@ public class humanScript : MonoBehaviour
     }
 
     IEnumerator InfectionRoll()
-    { 
+    {
+         //Debug.Log("Infection Roll");
          float timer = Random.Range(5, 10);
-         RollInfDice();
          yield return new WaitForSeconds(timer);
+         RollInfDice();
     }
 
     IEnumerator SurvivalRoll()
     {
-        float timer = Random.Range(10, 15);
-        RollSurDice();
+        float timer = Random.Range(5, 15);
         yield return new WaitForSeconds(timer);
+        RollSurDice();
     }
 
     private Vector2 Direction() 
@@ -71,7 +70,7 @@ public class humanScript : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (state == "Healthy")
+        if (state == "Sick")
         {
             StartCoroutine(InfectionRoll());
         }
@@ -83,7 +82,7 @@ public class humanScript : MonoBehaviour
         int dice = Random.Range(1,100);
         Debug.Log("Rolled dice " + dice);
         
-        if (dice > 1 && dice <= 10 && state != "Sick")
+        if (dice > 1 && dice <= 10 && state != "Sick" && state != "Immune")
         {
             state = "Sick";
             ChangeColor();
@@ -115,12 +114,14 @@ public class humanScript : MonoBehaviour
         else if (dice >= 10 && dice < 20 && state != "Immune")
         {
             state = "Immune";
+            sick = false;
             ChangeColor();
         }
 
         else if (dice >= 20 && dice <= 100 && state != "Healthy")
         {
             state = "Healthy";
+            sick = false;
             ChangeColor();
         }
     } 
@@ -145,7 +146,7 @@ public class humanScript : MonoBehaviour
         else
         {
             spriteRenderer.color = Color.white;
-        }
+        } 
 
     }
 
@@ -167,8 +168,9 @@ public class humanScript : MonoBehaviour
         }
 
         //ChangeColor();
-        if (state == "Sick")
+        if (state == "Sick" && !sick && state != "Immune")
         {
+            sick = true;
             StartCoroutine(SurvivalRoll());
         }
 
