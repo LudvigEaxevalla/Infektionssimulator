@@ -1,26 +1,46 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.PlayerLoop;
 using UnityEngine.Rendering;
 
 public class humanScript : MonoBehaviour
 {
 
-    public string state = "Healthy";
+    //public string state = "Healthy";
     public bool sick = false;
-    public bool moving = true;
-
+    public bool moving = false;
+    public bool infected = false;
+    bool infectionRolling = false;
   
-    public int humanSpeed = 3;
-    public int sickTime = 10 * 60;
+    public int humanSpeed = 2;
 
     public Vector2 target;
     SpriteRenderer spriteRenderer;
 
+    public enum HumanState
+    {
+        Healthy,
+        Sick,
+        Immune,
+        Dead
+    }
+
+    public HumanState state; 
 
     void Start()
     {
+
+        if (Random.Range(0,10) < 1)
+        {
+            Debug.Log("Started sick");
+            state = HumanState.Sick;
+            StartCoroutine(InfectionRoll());
+        }
+
         transform.position = new Vector3 (Random.Range(-8,8), Random.Range(-4,4));
         StartCoroutine(MoveSwitch());
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -31,26 +51,29 @@ public class humanScript : MonoBehaviour
 
         while (true) 
         {
-            float timer = Random.Range(3, 8);
-            moving = true;
-            target = Direction()*Random.Range(1,10);
+            float timer = Random.Range(3, 6);
             yield return new WaitForSeconds(timer);
+            moving = true;
+            //target = Direction()*Random.Range(-30,30);
+            target = (Vector2)transform.position + Direction() * Random.Range(2f, 6f);
+
         }
 
-       // yield return null;
+        // yield return null;
     }
 
     IEnumerator InfectionRoll()
     {
-         //Debug.Log("Infection Roll");
+         infectionRolling = true;
          float timer = Random.Range(5, 10);
          yield return new WaitForSeconds(timer);
          RollInfDice();
+         infectionRolling = false;
     }
 
     IEnumerator SurvivalRoll()
     {
-        float timer = Random.Range(5, 15);
+        float timer = Random.Range(5, 8);
         yield return new WaitForSeconds(timer);
         RollSurDice();
     }
@@ -64,28 +87,34 @@ public class humanScript : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+            moving = false;
             target = new Vector2(-target.x, -target.y);
 
     }
 
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (state == "Sick")
+        humanScript otherHuman = collision.GetComponent<humanScript>();
+
+        if (otherHuman == null) return;
+
+        if (state == HumanState.Healthy && otherHuman.state == HumanState.Sick && !infectionRolling)
         {
             StartCoroutine(InfectionRoll());
         }
-        
+
     }
 
     void RollInfDice()
     {
-        int dice = Random.Range(1,100);
-        Debug.Log("Rolled dice " + dice);
+        int dice = Random.Range(0,100);
+        Debug.Log("Rolled INFECTION dice " + dice);
         
-        if (dice > 1 && dice <= 10 && state != "Sick" && state != "Immune")
+        if (dice > 0 && dice <= 50 && state != HumanState.Sick && state != HumanState.Immune)
         {
-            state = "Sick";
-            ChangeColor();
+            state = HumanState.Sick;
+            UpdateColor();
             
 
         }
@@ -102,56 +131,52 @@ public class humanScript : MonoBehaviour
 
 
         int dice = Random.Range(1, 100);
-        Debug.Log("Rolled survival dice " + dice);
+        Debug.Log("Rolled SURVIVAL dice " + dice);
 
-        if (dice > 1 && dice < 10 && state != "Dead")
+        if (dice > 1 && dice < 10 && state != HumanState.Dead)
         {
-            state = "Dead";
+            state = HumanState.Dead;
             GameObject.Destroy(gameObject);
 
         }
 
-        else if (dice >= 10 && dice < 20 && state != "Immune")
+        else if (dice >= 10 && dice < 20 && state != HumanState.Immune)
         {
-            state = "Immune";
+            state = HumanState.Immune;
             sick = false;
-            ChangeColor();
+            UpdateColor();
         }
 
-        else if (dice >= 20 && dice <= 100 && state != "Healthy")
+        else if (dice >= 20 && dice <= 100 && state != HumanState.Healthy)
         {
-            state = "Healthy";
+            state = HumanState.Healthy;
             sick = false;
-            ChangeColor();
+            UpdateColor();
         }
-    } 
+    }
 
 
-    void ChangeColor()
+    void UpdateColor()
     {
-        if (state == "Healthy")
+        switch (state)
         {
-            spriteRenderer.color = Color.white;
+            case HumanState.Healthy:
+                spriteRenderer.color = Color.white;
+                break;
+            case HumanState.Sick:
+                spriteRenderer.color = Color.red;
+                break;
+            case HumanState.Immune:
+                spriteRenderer.color = Color.green;
+                break;
         }
-
-        else if (state == "Sick")
-        {
-            spriteRenderer.color = Color.red;
-        }
-        else if (state == "Immune")
-        {
-            spriteRenderer.color = Color.green;
-        }
-
-        else
-        {
-            spriteRenderer.color = Color.white;
-        } 
-
     }
 
     void Update()
     {
+
+        UpdateColor();
+
        if (moving)
         {
             transform.position = Vector2.MoveTowards(transform.position, target, humanSpeed * Time.deltaTime);
@@ -167,13 +192,11 @@ public class humanScript : MonoBehaviour
             target = new Vector2(target.x, -target.y);
         }
 
-        //ChangeColor();
-        if (state == "Sick" && !sick && state != "Immune")
+        if (state == HumanState.Sick && !sick && state != HumanState.Immune)
         {
             sick = true;
             StartCoroutine(SurvivalRoll());
         }
-
 
 
     }

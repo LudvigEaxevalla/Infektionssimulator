@@ -340,6 +340,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1932529617
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1932529619}
+  - component: {fileID: 1932529618}
+  m_Layer: 0
+  m_Name: Init
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1932529618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1932529617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5540a0d6dd6d07b4698da19148900b58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  human: {fileID: 2030919717}
+  startNumber: 50
+--- !u!4 &1932529619
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1932529617}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.2162735, y: -0.55220103, z: 0.031826735}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2030919717
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,7 +442,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 2.6
+  m_Radius: 3.35
 --- !u!61 &2030919719
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -482,15 +528,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33bbeb1add20a2d49b8d29fe4420ddd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  state: Healthy
-  healthy: 0
   sick: 0
-  immune: 0
-  dead: 0
   moving: 0
-  humanSpeed: 3
-  sickTime: 600
+  infected: 0
+  humanSpeed: 8
   target: {x: 0, y: 0}
+  state: 0
 --- !u!212 &2030919722
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -565,6 +608,7 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1932529619}
   - {fileID: 519420032}
   - {fileID: 619394802}
   - {fileID: 2030919723}
