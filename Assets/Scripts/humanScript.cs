@@ -1,5 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -20,8 +22,18 @@ public class humanScript : MonoBehaviour
 
     public Vector2 target;
     SpriteRenderer spriteRenderer;
+    public GameObject UIUpdate;
+    public UIScript uiScript;
 
-    public enum HumanState
+
+    public static int deathCount = 0;
+    public static int immuneCount = 0;
+    public static int infectedCount = 0;
+    public static int healthyCount = 0;
+    List<Human> humans;
+
+
+public enum HumanState
     {
         Healthy,
         Sick,
@@ -44,7 +56,11 @@ public class humanScript : MonoBehaviour
         transform.position = new Vector3 (Random.Range(-8,8), Random.Range(-4,4));
         StartCoroutine(MoveSwitch());
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+
     }
+
+    
 
     IEnumerator MoveSwitch()
     {
@@ -115,6 +131,8 @@ public class humanScript : MonoBehaviour
         {
             state = HumanState.Sick;
             UpdateColor();
+            infectedCount++;
+            uiScript.InfectedCountUpdate();
             
 
         }
@@ -137,6 +155,8 @@ public class humanScript : MonoBehaviour
         {
             state = HumanState.Dead;
             GameObject.Destroy(gameObject);
+            uiScript.PopulationUpdate();
+            int population = initScript.population--;
 
         }
 
@@ -145,6 +165,7 @@ public class humanScript : MonoBehaviour
             state = HumanState.Immune;
             sick = false;
             UpdateColor();
+            uiScript.ImmuneCountUpdate();
         }
 
         else if (dice >= 20 && dice <= 100 && state != HumanState.Healthy)
@@ -154,6 +175,7 @@ public class humanScript : MonoBehaviour
             UpdateColor();
         }
     }
+
 
 
     void UpdateColor()
